@@ -12,24 +12,14 @@ custom_text = st.text_input("Enter mRNA name to appear in Column A of the Excel 
 
 if uploaded_file and custom_text:
     try:
-        # Detect file type and set appropriate engine
-        file_type = uploaded_file.name.split('.')[-1].lower()
-        if file_type == 'xls':
-            engine = 'xlrd'
-        elif file_type == 'xlsx':
-            engine = 'openpyxl'
-        else:
-            st.error("Unsupported file type.")
-            st.stop()
-
-        # Read the file, skipping the first 5 rows
-        df = pd.read_excel(uploaded_file, skiprows=5, header=None, engine=engine)
+        # Let pandas automatically choose the engine (no manual setting)
+        df = pd.read_excel(uploaded_file, skiprows=5, header=None)
 
         # Extract relevant columns D and E (index 3 and 4)
         df_filtered = df[[3, 4]]
         df_filtered.columns = ['geneName', 'geneType']
 
-        # Filter for lncRNA and remove duplicates (both geneName + geneType)
+        # Filter for lncRNA and remove duplicates
         df_lncRNA = df_filtered[df_filtered['geneType'] == 'lncRNA'].drop_duplicates()
 
         # Final output: mRNA column + geneName column
